@@ -1,2 +1,2 @@
 # codigos
- Exercícios
+ Exercícios da faculdade passados na aula.
