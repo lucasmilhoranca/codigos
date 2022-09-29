@@ -1,2 +1,2 @@
 # codigos
- Exercícios da faculdade passados em aula.
+ TRABALHO PRIMEIRO BIMESTRE FACULDADE.
