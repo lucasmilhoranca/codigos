@@ -15,21 +15,21 @@ struct TpData
 
 struct TpPessoas
 {
-	char nome[30], email[20], endereco[30], cidade[15], estado[2];
-	char CPF[11];
+	char nome[30], email[20], endereco[30], cidade[15], estado[3];
+	char CPF[12];
 };
 
 struct TpPassagens
 {
 	int NRPASSAGEM, poltrona, CodVoo;
-	char Cpf[11];
+	char Cpf[12];
 	TpData DataCompra; 
 };
 
 struct TpCidade
 {
 	int CODCIDADE;
-	char NomeCidade[15], EstCidade[2];
+	char NomeCidade[15], EstCidade[3];
 };
 
 struct TpVoo
@@ -44,9 +44,9 @@ struct TpVoo
 void Moldura(int CLI, int LNI, int CLF, int LNF, int corMold, int corFundo);
 void MolduraPincipal(void);
 char Menu(void);
-int BuscaCpf(TpPessoas Pessoa[], int TL, char CPF[11]);
+int BuscaCPF(TpPessoas Pessoa[], int TL, char CPF[11]);
 int BuscaCidade(TpCidade Cidade[], int TL, int CodCidade);
-int BuscaEstado(char UF[2]);
+int BuscaEstado(char UF[3]);
 int BuscaPassagem(TpPassagens Passagem[], int TL, int NrPassagem);
 int BuscaVoo(TpVoo Voo[], int TL, int CodVoo);
 int ValidaCPF(char CPF[11]);
@@ -60,14 +60,12 @@ void CadPessoa(TpPessoas Pessoa[], int &TL);
 void CadCidade(TpCidade Cidade[], int &TL);
 void CadPassagem(TpPassagens Passagem[], TpVoo Voo[], int &TL);
 void CadVoo(TpVoo Voos[], int &TL, TpCidade Cidades[], int TLC);
+void Executa(void);
 
 //MAIN
 int main(void)
 {
-	struct TpPessoas Pessoas[TF];
-	struct TpPassagens Passagens[TF];
-	struct TpCidade Cidade[TF];
-	struct TpVoo Voos[TF];
+	Executa();
 	
 	return 0;
 }
@@ -108,17 +106,19 @@ void Moldura(int CLI, int LNI, int CLF, int LNF, int corMold, int corFundo)
 	textbackground(0);
 }
 
-void MolduraPincipal(void)
+void MolduraPrincipal(void)
 {
-	clrscr();
+	//Moldura();
 }
 
 char Menu(void)
 {
-	clrscr();
 	//MolduraPrincipal();
-	gotoxy(1,1);
-	printf("##########");
+	//gotoxy(1,1);
+	printf("[A]-CAD PESSOA\n");
+	printf("[B]-CAD CIDADE\n");
+	printf("[C]-CAD VOO\n");
+	printf("[D]-CAD PASSAGEM\n");
 	
 	return toupper(getch());
 }
@@ -147,7 +147,7 @@ int ValidaCPF(char CPF[11])
 		if(dig2==11 || dig2==10)
 			dig2=0;
 		if(dig2==vcpf[10])
-			return -1;
+			return 1;
 		return 0;
 	}
 	else
@@ -156,63 +156,95 @@ int ValidaCPF(char CPF[11])
 
 int ValidaEmail(char EMAIL[])
 {
-	int i;
+	int i, j, contArroba=0, contPonto=0, marcaArroba, marcaPonto;
+	
+	if(strlen(EMAIL)==0 || (EMAIL[0]=='@' && EMAIL[0]=='.'))
+		return 0;
+	for(i=0 ; i<strlen(EMAIL) ; i++)
+	{
+		if(EMAIL[i]=='@')
+		{
+			contArroba++;
+			marcaArroba=i;
+		}
+		if(EMAIL[i]=='.')
+		{
+			contPonto++;
+			marcaPonto=i;
+		}
+	}
+	if((contArroba==1 && contPonto>0) && marcaArroba<marcaPonto)
+		return 1;
+	return 0;
 }
 
 int ValidaData(TpData Data)
 {
 	if((Data.dia>0 && Data.dia<32) && (Data.mes>0 && Data.mes<13) && (Data.ano>2020 && Data.ano<2030))
-		return -1;
+		return 1;
 	return 0;
 }
 
 int BuscaCPF(TpPessoas Pessoa[], int TL, char CPF[11])
 {
-	int i;
-	for(i=0 ; i<TL && strcmp(Pessoa[i].CPF,CPF)!=0 ; i++);
+	int i=0;
 	
+	while(i<TL && strcmp(Pessoa[i].CPF,CPF)!=0)
+		i++;
 	if(i<TL)
 		return i;
-	return -1;
+	return -1;	
+		
 }
 
 int BuscaCidade(TpCidade Cidade[], int TL, int CodCidade)
 {
-	int i;
-	for(i=0 ; i<TL && Cidade[i].CODCIDADE!=CodCidade ; i++);
+	int i=0;
+	
+	while(i<TL && Cidade[i].CODCIDADE!=CodCidade)
+		i++;
 	
 	if(i<TL)
 		return i;
 	return -1;
 }
 
-int BuscaEstado(char UF[2])
+int BuscaEstado(char UF[3])
 {
 	char Estados[27][3]={"AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"};
-	int i;
+	int i=0;
 	
-	for(i=0 ; i<27 && stricmp(Estados[i],UF)!=0 ; i++);
+	while(i<27 && stricmp(Estados[i],UF)!=0)
+		i++;
 	
 	if(i<27)
-		return i;
-	return -1;
+		return 1;
+	return 0;
 }
 
 int BuscaVoo(TpVoo Voo[], int TL, int CodVoo)
 {
-	int i;
+	int i=0;
 	
-	for(i=0 ; i<TL && Voo[i].CODVOO!=CodVoo ; i++);
+	while(i<TL && Voo[i].CODVOO!=CodVoo)
+		i++;
 	
 	if(i<TL)
 		return i;
 	return -1;
 }
 
+int BuscaPoltrona(TpPassagens Passagem[], int TL, int NPOL)
+{
+		
+}
+
 int BuscaPassagem(TpPassagens Passagem[], int TL, int NrPassagem)
 {
-	int i;
-	for(i=0 ; i<TL && Passagem[i].NRPASSAGEM!=NrPassagem ; i++);
+	int i=0;
+	
+	while(i<TL && Passagem[i].NRPASSAGEM!=NrPassagem)
+		i++;
 	
 	if(i<TL)
 		return i;
@@ -260,33 +292,41 @@ void OrdenaCidade(TpCidade Cidade[], int TL)
 void ExclPessoa(TpPessoas Pessoa[], int &TL)
 {
 	int i;
-	char CpfExcl[11];
+	char CpfExcl[12];
 	
-	printf("CPF P/ EXCL:");
-	fflush(stdin);
-	gets(CpfExcl);
-	while(strcmp(CpfExcl,"\0")>0)
+	if(TL==0)
 	{
-		i = BuscaCPF(Pessoa, TL, CpfExcl);
-		if(i>-1)
-		{
-			printf("%s \t %s \t %s \t %s \t %s ", Pessoa[i].CPF, Pessoa[i].nome, Pessoa[i].endereco, Pessoa[i].cidade, Pessoa[i].estado);
-			printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
-			if(toupper(getch())=='S')
-			{
-				for(; i<TL-1 ; i++)
-					Pessoa[i]=Pessoa[i+1];
-				TL--;
-			}
-			else
-				printf("Operacao cancelada!");
-		}
-		else
-			printf("Pessoa nao encontrada!");
+		printf("VAZIO!zn");
+		getch();
+	}
+	else
+	{
 		printf("CPF P/ EXCL:");
 		fflush(stdin);
-		gets(CpfExcl); 
-	}
+		gets(CpfExcl);
+		while(strcmp(CpfExcl,"\0")>0)
+		{
+			i = BuscaCPF(Pessoa, TL, CpfExcl);
+			if(i>-1)
+			{
+				printf("%s \t %s \t %s \t %s \t %s ", Pessoa[i].CPF, Pessoa[i].nome, Pessoa[i].endereco, Pessoa[i].cidade, Pessoa[i].estado);
+				printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
+				if(toupper(getch())=='S')
+				{
+					for(; i<TL-1 ; i++)
+						Pessoa[i]=Pessoa[i+1];
+					TL--;
+				}
+			else
+				printf("Operacao cancelada!");
+			}
+			else
+				printf("Pessoa nao encontrada!");
+			printf("CPF P/ EXCL:");
+			fflush(stdin);
+			gets(CpfExcl); 
+		}
+	}	
 }
 
 void ExclCidade(TpCidade Cidade[], int &TL)
@@ -294,49 +334,135 @@ void ExclCidade(TpCidade Cidade[], int &TL)
 	int i;
 	int CodCidExcl;
 	
-	printf("CODCID P/ EXCL:");
-	scanf("%d", &CodCidExcl);
-	while(CodCidExcl>0)
+	if(TL==0)
 	{
-			i = BuscaCidade(Cidade, TL, CodCidExcl);
-		if(i>-1)
-		{
-			printf("%d \t %s \t %s", Cidade[i].CODCIDADE, Cidade[i].NomeCidade, Cidade[i].EstCidade);
-			printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
-			if(toupper(getch())=='S')
-			{
-				for(; i<TL-1 ; i++)
-					Cidade[i] = Cidade[i+1];
-				TL--;
-			}
-			else
-				printf("Operacao cancelada!");
-		}
-		else
-			printf("Cidade nao encontrada!");
+		printf("VAZIO!\n");
+		getch();
+	}
+	else
+	{
 		printf("CODCID P/ EXCL:");
 		scanf("%d", &CodCidExcl);
+		while(CodCidExcl>0)
+		{
+			i = BuscaCidade(Cidade, TL, CodCidExcl);
+			if(i>-1)
+			{
+				printf("%d \t %s \t %s", Cidade[i].CODCIDADE, Cidade[i].NomeCidade, Cidade[i].EstCidade);
+				printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
+				if(toupper(getch())=='S')
+				{
+					for(; i<TL-1 ; i++)
+						Cidade[i] = Cidade[i+1];
+					TL--;
+				}
+				else
+					printf("Operacao cancelada!");
+			}
+			else
+				printf("Cidade nao encontrada!");
+			printf("CODCID P/ EXCL:");
+			scanf("%d", &CodCidExcl);
+		}
+	}
+}
+
+void ExclVoo(TpVoo Voo[], int &TLV, TpPassagens Passagens[], int &TLP)
+{
+	int i, j, CodVooExcl;
+	
+	if(TLV==0)
+	{
+		printf("VAZIO!\n");
+		getch();
+	}
+	else
+	{
+		printf("COD VOO P/ EXCL:");
+		scanf("%d", &CodVooExcl);
+		while(CodVooExcl>0)
+		{
+			i = BuscaVoo(Voo,TLV,CodVooExcl);
+			if(i>-1)
+			{
+				printf("%d \t %d/%d/%d \t Ori:%d /t Des:%d", Voo[i].CODVOO, Voo[i].DataVoo.dia, Voo[i].DataVoo.mes, Voo[i].DataVoo.ano, Voo[i].CodCidOri, Voo[i].CodCidDes);
+				printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
+				if(toupper(getch())=='S')
+				{
+					j = Voo[i].CODVOO;
+					for(; i<TLV-1 ; i++)
+						Voo[i] = Voo[i+1];
+					TLV--;
+					for(int k=0 ; k<TLP ; k++)
+					{
+						if(Passagens[k].CodVoo == j)//procura se a passagem corresponde ao voo excluido
+						{
+							for(int l=k ; l<TLP-1 ; l++)//exclui a passagem e remaneja as passagens
+								Passagens[l] = Passagens[l+1];
+							TLP--;
+						}
+					}			
+				}
+				else
+					printf("Operacao cancelada!");
+			}
+			else
+				printf("Voo nao encontrado!\n");
+			printf("COD VOO P/ EXCL:");
+			scanf("%d", &CodVooExcl);
+		}
+	}
+}
+
+void ExclPassagem(TpPassagens Passagens[], int &TL)
+{
+	int i, CodPassagem;
+	
+	if(TL==0)
+	{
+		printf("VAZIO!");
+		getch();
+	}
+	else
+	{
+		printf("COD PASSAGEM P/ EXCL:");
+		scanf("%d", &CodPassagem);
+		while(CodPassagem>999)
+		{
+			i=BuscaPassagem(Passagens,TL,CodPassagem);
+			if(i>-1)
+			{
+				printf("%d \t %d \t %d \t %d/%d/%d \t %d", Passagens[i].NRPASSAGEM, Passagens[i].CodVoo, Passagens[i].Cpf, Passagens[i].DataCompra.dia, Passagens[i].DataCompra.mes, Passagens[i].DataCompra.ano, Passagens[i].poltrona);
+				printf("CONFIRMAR EXCLUSAO?(ACAO IRREVERSIVEL)");
+				if(toupper(getch())=='S')
+				{
+					for(; i<TL-1 ; i++)
+						Passagens[i] = Passagens[i+1];
+					TL--;
+				}
+			}
+		}
 	}
 }
 
 void CadPessoa(TpPessoas Pessoa[], int &TL)
 {
-	char AuxCPF[11], AuxEMAIL[20], AuxEstado[2];
+	char AuxCPF[12], AuxEMAIL[20], AuxEstado[3];
 	int pos, CAD;
 	clrscr();
 	printf("# # # CADASTRO PESSOA # # #");
 	printf("\nCPF:");
 	fflush(stdin);
 	gets(AuxCPF);
+	int aux;
 	while(TL<TF && strcmp(AuxCPF,"\0")!=0)
 	{
 		CAD=-1;
-		if(ValidaCPF(AuxCPF)==1)
+		if(ValidaCPF(AuxCPF))
 		{
-			pos = BuscaCPF(Pessoa, TL, AuxCPF);
-			if(pos == -1)
+			if(BuscaCPF(Pessoa, TL, AuxCPF)==-1)
 			{
-				strcpy(Pessoa[TL].CPF,AuxCPF);
+				strcpy(Pessoa[TL].CPF,AuxCPF);								
 				printf("\nNome:");
 				fflush(stdin);
 				gets(Pessoa[TL].nome);
@@ -349,33 +475,26 @@ void CadPessoa(TpPessoas Pessoa[], int &TL)
 				printf("\nEstado:");
 				fflush(stdin);
 				gets(AuxEstado);
-				while((AuxEstado)!="\0" && BuscaEstado(AuxEstado)==0)
+				while(!BuscaEstado(AuxEstado))
 				{
 					printf("\nEstado:");
 					fflush(stdin);
 					gets(AuxEstado);
 				}
-				strcpy(Pessoa[TL].estado,AuxEstado);
+				strcpy(Pessoa[TL].estado,AuxEstado);				
 				printf("\nEmail:");
 				fflush(stdin);
 				gets(AuxEMAIL);
-				while(strcmp(AuxEMAIL,"\0")!=0 && CAD<0)
+				while(!ValidaEmail(AuxEMAIL))
 				{
-					if(ValidaEmail(AuxEMAIL)==1)
-					{
-						strcpy(Pessoa[TL].email, AuxEMAIL);
-						printf("Cadastro Completo!");
-						TL++;
-						CAD++;
-						OrdenaNome(Pessoa,TL);
-					}
-					else
-					{
-						printf("Email ivalido");
-						printf("Email\n:");
-						gets(AuxEMAIL);
-					}		
+					printf("Email invalido\n");
+					printf("Email:");
+					gets(AuxEMAIL);
 				}
+				strcpy(Pessoa[TL].email, AuxEMAIL);
+				printf("Cadastro Completo!");
+				TL++;
+				OrdenaNome(Pessoa,TL);		
 			}
 			else
 				printf("Pessoa ja cadastrada!");
@@ -392,7 +511,7 @@ void CadPessoa(TpPessoas Pessoa[], int &TL)
 void CadCidade(TpCidade Cidade[], int &TL)
 {
 	int AuxCod,i, CAD;
-	char AuxEstado[2];
+	char AuxEstado[3];
 	clrscr();
 	printf("# # # CADASTRO CIDADE # # #");
 	printf("\nCod:");
@@ -403,24 +522,20 @@ void CadCidade(TpCidade Cidade[], int &TL)
 		if(BuscaCidade(Cidade,TL,AuxCod)==-1)
 		{
 			printf("\nNome Cid:");
+			fflush(stdin);
 			gets(Cidade[TL].NomeCidade);
 			printf("\nEstado(Sigla):");
+			fflush(stdin);
 			gets(AuxEstado);
-			while(strcmp(AuxEstado,"\0")!=0 && CAD==0)
+			while(!BuscaEstado(AuxEstado))
 			{
-				if(BuscaEstado(AuxEstado)>0)
-				{
-					strcpy(Cidade[TL].EstCidade,AuxEstado);
-					TL++;
-					CAD++;
-				}
-				else
-				{
-					printf("Estado invalido!");
-					printf("\nEstado(Sigla):");
-					gets(AuxEstado);
-				}
+				printf("\nEstado(Sigla):");
+				fflush(stdin);
+				gets(AuxEstado);
 			}
+			Cidade[TL].CODCIDADE = AuxCod;
+			strcpy(Cidade[TL].EstCidade,AuxEstado);
+			TL++;
 		}
 		else
 			printf("Cidade ja existe!");
@@ -431,12 +546,46 @@ void CadCidade(TpCidade Cidade[], int &TL)
 
 void CadPassagem(TpPassagens Passagem[], int &TL, TpVoo Voo[], int TLV, TpPessoas Pessoa[], int TLP)
 {
+	struct TpData AuxDATA;
 	char AuxCPF[11];
+	int auxNrPa=1000, AuxCODVOO, pos=0;
+	
+	clrscr();
+	printf("### CADASTRO DE PASSAGEM ####");
+	printf("\n\nCPF:");
+	fflush(stdin);
+	gets(AuxCPF);
+	while(TL<TF && strcmp(AuxCPF,"\0")!=0)
+	{
+		if(BuscaCPF(Pessoa, TLP, AuxCPF)>-1)
+		{
+			printf("Cod. VOO:");
+			scanf("%d", &AuxCODVOO);
+			while(AuxCODVOO==0 || BuscaVoo(Voo, TLV, AuxCODVOO)>-1)
+			{
+				printf("Voo nao encontrado");
+				printf("\nCod. VOO:");
+				scanf("%d", &AuxCODVOO);
+			}
+			printf("Data Compra:");
+			scanf("%d %d %d", &AuxDATA.dia, &AuxDATA.mes, &AuxDATA.ano);
+			while(AuxDATA.dia<=0 || !ValidaData(AuxDATA))
+			{
+				printf("Data invalida!");
+				printf("Data Compra:");
+				scanf("%d %d %d", &AuxDATA.dia, &AuxDATA.mes, &AuxDATA.ano);
+			}	
+		}
+		else
+			printf("CPF nao encontrado!");
+		printf("\n\nCPF:");
+		gets(AuxCPF);
+	}
 }
 
 void CadVoo(TpVoo Voos[], int &TL, TpCidade Cidades[], int TLC)
 {
-	int CAD, AuxCodVoo, AuxCodCidO, AuxCodCidD, AuxNL;
+	int CAD=-1, AuxCodVoo, AuxCodCidO, AuxCodCidD, AuxNL;
 	TpData AuxData;
 	
 	clrscr();
@@ -446,64 +595,46 @@ void CadVoo(TpVoo Voos[], int &TL, TpCidade Cidades[], int TLC)
 	
 	while(TL<TF && AuxCodVoo>0)
 	{
-		CAD=0;
+		CAD=-1;
 		if(BuscaVoo(Voos,TL,AuxCodVoo)==-1)
 		{
 			printf("Data do Voo:");
 			scanf("%d %d %d", &AuxData.dia, &AuxData.mes, &AuxData.ano);
-			while(AuxData.dia>0 && CAD==0)
+			while(AuxData.dia>0 && CAD<0)
 			{
-				if(ValidaData(AuxData)==-1)
+				if(ValidaData(AuxData))
 				{
 					printf("Cod Cidade de Ori:");
 					scanf("%d", &AuxCodCidO);
-					while(AuxCodCidO>0 && CAD==0)
+					while(BuscaCidade(Cidades,TLC,AuxCodCidO)==-1)
 					{
-						if(BuscaCidade(Cidades,TLC,AuxCodCidO)==-1)
-						{
-							printf("Cod Cidade de Des:");
-							scanf("%d", &AuxCodCidD);
-							while(AuxCodCidD>0 && CAD==0)
-							{
-								if(BuscaCidade(Cidades,TLC,AuxCodCidD)==-1)
-								{
-									printf("Num de Lugares:");
-									scanf("%d",&AuxNL);
-									while(AuxNL>0 && CAD==0)
-									{
-										if(AuxNL<=50)
-										{
-											Voos[TL].CODVOO = AuxCodVoo;
-											Voos[TL].DataVoo = AuxData;
-											Voos[TL].NrLugares = AuxNL;
-											Voos[TL].CodCidOri = AuxCodCidO;
-											Voos[TL].CodCidDes = AuxCodCidD;
-											TL++;
-											CAD++;
-										}
-										else
-										{
-											printf("N de Lugares invalido!\n");
-											printf("Num de Lugares:");
-											scanf("%d",&AuxNL);
-										}
-									}
-								}
-								else
-								{
-									printf("Cidade n existe!\n");
-									printf("Cod Cidade de Des:");
-									scanf("%d", &AuxCodCidD);
-								}
-							}
-						}
-						else
-						{
-							printf("Cidade nao existe!\n");
-							printf("Cod Cidade de Ori:");
-							scanf("%d", &AuxCodCidO);
-						}
+						printf("Cidade n existe!\n");
+						printf("Cod Cidade de Ori:");
+						scanf("%d", &AuxCodCidO);
 					}
+					printf("Cod Cidade de Des:");
+					scanf("%d", &AuxCodCidD);
+					while(BuscaCidade(Cidades,TLC,AuxCodCidD)==-1)
+					{
+						printf("Cidade n existe!\n");
+						printf("Cod Cidade de Des:");
+						scanf("%d", &AuxCodCidD);
+					}
+					printf("Num de Lugares:");
+					scanf("%d",&AuxNL);
+					while(AuxNL>50 || AuxNL<0)
+					{
+						printf("N de Lugares invalido!\n");
+						printf("Num de Lugares:");
+						scanf("%d",&AuxNL);
+					}
+					Voos[TL].CODVOO = AuxCodVoo;
+					Voos[TL].DataVoo = AuxData;
+					Voos[TL].NrLugares = AuxNL;
+					Voos[TL].CodCidOri = AuxCodCidO;
+					Voos[TL].CodCidDes = AuxCodCidD;
+					TL++;
+					CAD++;
 				}
 				else
 				{
@@ -518,4 +649,38 @@ void CadVoo(TpVoo Voos[], int &TL, TpCidade Cidades[], int TLC)
 		printf("\nCod.Voo:");
 		scanf("%d",&AuxCodVoo);
 	}
+}
+
+void Executa(void)
+{
+	struct TpPessoas Pessoas[TF]; int TLPE=0;
+	struct TpPassagens Passagens[TF]; int TLPA=0;
+	struct TpCidade Cidade[TF]; int TLC=0;
+	struct TpVoo Voos[TF]; int TLV=0;
+	
+	char opc;
+	
+	Passagens[0].NRPASSAGEM=1000;
+	
+	do
+	{
+		opc = Menu();
+		
+		switch(opc)
+		{
+			case 'A':
+				CadPessoa(Pessoas, TLPE);
+			break;
+			case 'B':
+				CadCidade(Cidade, TLC);
+			break;
+			case 'C':
+				CadVoo(Voos, TLV, Cidade, TLC);
+			break;
+			case 'D':
+				CadPassagem(Passagens, TLPA, Voos, TLV, Pessoas, TLPE);
+			break;				
+		}
+			
+	}while(opc!=27);
 }
